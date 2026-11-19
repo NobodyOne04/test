@@ -1,0 +1,24 @@
+# 0002. A static one-page site: LESS for styles, jQuery for behaviour
+
+- Status: Accepted
+- Date: 2026-11-19
+
+The site is one HTML page with sections and anchor navigation, styles written in LESS and
+compiled to one CSS file, and jQuery plugins for the slider and the reservation form.
+
+## Technical details
+- **Page** (`www/index.html`): fixed header menu linking to `#section-head`, `-info`,
+  `-gallery`, `-reserve`, `-contacts`.
+- **Styles**: `www/public/less/main.less` imports `reset`, `font`, `btn`, `layout`; the
+  compiled `www/public/css/main.css` is committed and loaded by the page. Exo 2 web fonts in
+  four weights.
+- **Scripts** (`www/public/js/main.js`): menu behaviour, FlexSlider gallery, and an AJAX
+  POST of `#reserve-form` to `index.php`, expecting JSON `{result: 1}`; the PHP back end was
+  never committed. Contacts use a Google Maps script.
+- **Repo layout**: `trunk/` and `branches/` mimic an SVN layout from the course; the git
+  branches `img`, `js` (merged) and `css` (one commit) were the git half of the exercise.
+
+## Technologies and alternatives
+- Involved: HTML5, LESS, jQuery 2.1.4, FlexSlider, Google Maps JS.
+- Alternatives: plain CSS (LESS gave variables and nesting); a static site generator (more
+  than one page needs).
