@@ -1,166 +1,37 @@
-# Work Time Management service 
+# test
 
-This README.md assumes that you have already installed the go compiler, if you didn't, please, refer to: https://golang.org/doc/install
+A one-page website for the **FC Lokomotiv restaurant complex** (Ресторанный комплекс ФК
+«Локомотив»), made in 2019 as a front-end and git practice project. The page is in Russian.
 
-## Files:
+> The previous README described a different project (a Go "Work Time Management" service);
+> none of that code is in this repo, so it was replaced.
 
-### serviceWTM.go:
-back-end goLang script
-### serviceWTM_test.go:
-test script which checks whether or not url's hadnlers in service script are working properly
+## View it
 
-## Building
+Open `www/index.html` in a browser, or serve the folder:
 
-In development environment run `go run serviceWTM.go -dev`.
-
-But if you need an executable file for some reasons, you can start with `go build` and then `./worktimemanagement -dev`(again: use -dev flag for launching service using development environment config)
-
-## Flags for running the service
-
-For info about flags run `go run serviceWTM.go -h`
-
-## Test
-
-Run `go test` in a service directory to start testing the service, the results and mistakes(if there were any) will be shown in the same terminal you've launched the command.
-
-
-## Troubleshooting
-
-This service must be allocated in a GOPATH folder to work properly.
-If you recieve message that your gopath is missing some of the packages which are needed in order to launch server/test then open terminal in the service folder and type `go get ./`
-
-----
-(All of the commands are for linux terminal)
-
-# API FAQ
-
-## Database configuration
-
-To service work properly, you need to build database in a `/dbscripts/db-wtm` directory using local Dockerfile, additional info could be found there in a README.md file.
-
-### Note: if you have any errors, check for these things: 
-- **If you have a mariadb image in your docker by running `docker image ls | grep mariadb` command**
-
-- **If you have a mariadb containter launched before (they you need to just start it by running `docker start mariadb`(or any other name of the container which is refered to current version of db-wtm database)**
-
-- **Do you have rights to run docker without using sudo, if not - run it with sudo, or add your user to local docker group(you can find guides on the Internet)**
-
-- **Note: the service will load and execute script which will fill database with test data, no further actions are required. The service will notify if everything is done right or not.**
-
-
-## Requests 
-
-### All requests bodies are raw JSON(application/json)
-
----
-## GET requests:
-
-### wtmgmt/activities/
-
-### Request url:
-
-`GET: wtmgmt/activities/*user_id*` - get all activities that are created by user who has id of *user_id*
-
-### Response:
-
->>>
+```sh
+cd www && python3 -m http.server 8000      # http://localhost:8000
 ```
-[
-    {
-        "ActivityID": 3,
-        "Date": "2018-10-22",
-        "ProjectID": 1,
-        "StartTime": "13:32:00",
-        "EndTime": "15:12:00",
-        "Payment": 342,
-        "Description": "Decide what to do"
-    },
-    {
-        "ActivityID": 4,
-        "Date": "2018-10-23",
-        "ProjectID": 1,
-        "StartTime": "14:04:00",
-        "EndTime": "19:03:00",
-        "Payment": 427,
-        "Description": "Do what I've decided to do"
-    },
-    ...
-]
 
-```
->>>
+The reservation form posts to `index.php`, which isn't in the repo, so booking doesn't work
+offline. The map needs a Google Maps key.
 
+## Page
 
-### wtmgmt/activitiesToday/
+Sections: header (`#section-head`), info, gallery (FlexSlider carousel), reservation form, and
+contacts with a map.
 
-### Request url:
+## Layout
 
-`GET: wtmgmt/activitiesDate/?=*user_id*&Date=*date*` - get activities that are created today by user who has id of *user_id*.
+| Path | What |
+|---|---|
+| `www/index.html` | the page |
+| `www/public/less/` | styles in LESS (`main.less` imports reset, font, btn, layout) |
+| `www/public/css/main.css` | the compiled CSS the page loads |
+| `www/public/js/main.js` | menu, slider setup, AJAX reservation form |
+| `www/public/js/lib/` | jQuery FlexSlider |
+| `www/public/font/`, `img/` | Exo 2 web fonts, icons, slides |
+| `trunk/`, `branches/` | SVN-style copies from the exercise (unminified jQuery and Maps scripts; `img`, `js` variants) |
 
-### Note that here JSON will not return data as in previous response.
-
-### Example of request: wtmgmt/activitiesDate/?id=2&Date=2018-10-22
-
-### Response:
-
->>>
-```
-[
-    {
-        "ActivityID":21,
-        "ProjectID":3,
-        "StartTime":"17:21:00",
-        "EndTime":"21:40:00",
-        "Payment":0,
-        "Description":"Write awesome RESTAPI in Go"
-    },
-    ...
-]
-
-```
->>>
-
-### /test
-
-### Request url:
-
-`GET: /test` - just a test page which returns 200 code and nothing else, might be helpful for testing the connection to service.
-
----
-
----
-## POST request:
-
-### wtmgmt/POST
-
-### Request url:
-
-`POST: wtmgmt/POST`
-
-### Desired request JSON structure:
-
->>>
-```
-[
-    {
-	"AccountID":2,
-	"Date":"2018-11-27", 
-	"ProjectID":3,
-	"StartTime":"17:21",
-	"EndTime":"21:40",
-	"Payment":0,
-	"Description":"Check if RESTAPI is working"
-    }
-]
-
-```
->>>
----
-
-
-
-
-
-
-
-
+Decisions: [docs/adr](docs/adr/README.md).
