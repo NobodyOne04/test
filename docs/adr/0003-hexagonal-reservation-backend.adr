@@ -1,0 +1,42 @@
+# 0003. A small hexagonal back end for table reservations
+
+- Status: Accepted
+- Date: 2026-11-20
+
+The reservation form gets the back end it never had: a framework-free core that validates and
+books reservations, with SQLite storage, a FastAPI web adapter that also serves the site, and a
+CLI to read the bookings. Chosen by the owner on 2026-11-20 (hexagonal like personal-ai,
+modern tooling, tests without CI).
+
+## Technical details
+- **Problem**: `www/public/js/main.js` posted the form to `index.php`, which was never
+  committed, so every booking failed with "Ошибка! Письмо не отправлено".
+- **Layout** (`src/reservations/`):
+  - `core/domain/`: `Reservation` (day, time, guests, name, phone, created_at) and
+    `ReservationRequest.validate(today)` → a `Reservation` or `InvalidReservation` with a
+    Russian message per field. Rules: day as `ДД.ММ.ГГГГ`, `ДД.ММ` (this year) or ISO, not in
+    the past; time `ЧЧ:ММ` between 10:00 and 23:00; 1-20 guests; name 1-100 characters;
+    phone of 10-15 digits (`+`, spaces, brackets and dashes allowed), stored as `+digits`.
+  - `core/ports/`: `ReservationStore` (`add`, `all`) and `Clock` (`now`).
+  - `core/application/service.py`: `ReservationService(store, clock)`: `book(form)` and
+    `upcoming()`.
+  - `adapters/outbound/sqlite.py`: `SqliteReservationStore(path)` (creates its table);
+    `adapters/outbound/clock.py`: `SystemClock`.
+  - `adapters/inbound/http.py`: FastAPI app: `POST /reservations` (form-encoded, as the page
+    sends it) answers `{"result": 1}` (201) or `{"result": 0, "errors": {...}}` (422); the site
+    in `www/` is served at `/`. There is deliberately no endpoint listing bookings: they hold
+    names and phone numbers and there is no login.
+  - `adapters/inbound/cli.py`: `reservations list` prints upcoming bookings.
+  - `composition.py`: wires the store at `$RESERVATIONS_DB` (default `reservations.db`,
+    git-ignored) and the system clock.
+- **Front end**: `main.js` posts to `/reservations` instead of `index.php` and shows the
+  field errors it gets back.
+- **Tests** (pytest): domain rules and service on a fake store and fixed clock, the SQLite
+  store on a temporary file, the HTTP adapter with FastAPI's `TestClient`.
+- **Tooling**: Python 3.12+, uv, ruff, pytest, `make check`. No CI, by choice.
+
+## Technologies and alternatives
+- Involved: Python 3.12+, FastAPI, uvicorn, python-multipart, SQLite (stdlib), uv, ruff, pytest.
+- Alternatives: PHP `index.php` as the JS expected (a second language for one form); Django
+  (heavy for one endpoint); sending email instead of storing (needs SMTP credentials); a
+  listing endpoint (exposes personal data without auth).
