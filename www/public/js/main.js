@@ -3,7 +3,7 @@ $(function(){
     function AjaxFormRequest() {
         var data = $('#reserve-form').serialize(),
             $responseWrap = $('#section-reserve .j-response'),
-            url = 'index.php';
+            url = '/reservations';
 
         console.log(data);
         jQuery.ajax({
@@ -13,15 +13,19 @@ $(function(){
             data: data, 
             success: function(response) {
                 if (response.result == 1) {
-                    $responseWrap.text('Письмо отправлено!');                    
+                    $responseWrap.text('Столик забронирован! Мы позвоним для подтверждения.');
+                    $('#reserve-form')[0].reset();
                 } 
                 else {                    
                     $responseWrap.text('Ошибка! Письмо не отправлено. Попробуйте позже.'); 
                 }
 
             },
-            error: function(response) {                
-                $responseWrap.text('Ошибка! Письмо не отправлено. Попробуйте позже.'); 
+            error: function(xhr) {
+                // 422: the back end lists what to fix, field by field
+                var errors = xhr.responseJSON && xhr.responseJSON.errors;
+                $responseWrap.text(errors ? $.map(errors, function(m) { return m; }).join(' ')
+                                          : 'Ошибка! Попробуйте позже.');
             }
         });
     }
